@@ -1,4 +1,5 @@
 import pandas as pd
+import argparse
 from datetime import datetime
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 from jinja2 import Environment, FileSystemLoader, select_autoescape
@@ -20,13 +21,17 @@ def get_years_text(year_with_us):
 
 
 def main():
+    parser = argparse.ArgumentParser(description='Запуск сайта с винами.')
+    parser.add_argument('--path', type=str, default='wine.xlsx', help='Путь к файлу с таблицей вин')
+    args = parser.parse_args()
+
     env = Environment(
         loader=FileSystemLoader('.'),
         autoescape=select_autoescape(['html', 'xml'])
     )
     template = env.get_template('template.html')
     year_with_us = datetime.now().year - DATE_OF_CREATION
-    wine_excel = pd.read_excel('wine.xlsx', keep_default_na=False)
+    wine_excel = pd.read_excel(args.path, keep_default_na=False)
     products = wine_excel.to_dict(orient='records')
     products_by_category = defaultdict(list)
     for row in products:
